@@ -1,0 +1,4 @@
+requests==2.25.1
+pandas==1.4.4
+sqlite3==3.39.2
+APScheduler==3.7.0
