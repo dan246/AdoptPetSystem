@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>十連抽結果</title>
+    <link rel="stylesheet" href="static/css/styles.css">
+</head>
+<body>
+    <script src="static/js/scripts.js" defer></script> 
+    <h1>十連抽結果</h1>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>類型</th>
+            <th>地點</th>
+            <th>品種</th>
+            <th>性別</th>
+            <th>體型</th>
+            <th>顏色</th>
+            <th>年齡</th>
+            <th>照片</th>
+            <th>備註</th>
+        </tr>
+        {% for animal in animals %}
+        <tr>
+            <td>{{ animal[0] }}</td>
+            <td>{{ animal[5] }}</td>
+            <td>{{ animal[4] }}</td>
+            <td>{{ animal[6] }}</td>
+            <td>{{ animal[7] }}</td>
+            <td>{{ animal[8] }}</td>
+            <td>{{ animal[9] }}</td>
+            <td>{{ animal[10] }}</td>
+            <td><img src="{{ animal[22] }}" alt="Animal Photo" class="myImg clickable" style="width:100px; height:auto;"></td>
+            <td>{{ animal[16] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="/" class="btn">返回</a>
+</body>
+</html>

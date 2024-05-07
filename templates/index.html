@@ -4,78 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>流浪動物資料</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 40px;
-            background-color: #f4f4f9;
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-        }
-        th, td {
-            text-align: left;
-            padding: 12px 15px;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        tr:hover {
-            background-color: #ddd;
-        }
-        img {
-            width: 100px;
-            height: auto;
-            border-radius: 5px;
-        }
-        .filter-form {
-            margin-bottom: 20px;
-        }
-        .pagination {
-            display: flex;
-            list-style: none;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .pagination a, .pagination span {
-            display: inline-block;
-            padding: 8px 16px;
-            margin-right: 8px;
-            border: 1px solid #007bff;
-            text-decoration: none;
-            color: #007bff;
-            background-color: #fff;
-            border-radius: 5px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .pagination a:hover {
-            background-color: #007bff;
-            color: white;
-        }
-        .pagination .current {
-            background-color: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-        .pagination .disabled {
-            color: #bbb;
-            pointer-events: none;
-            background-color: #f0f0f0;
-        }
-    </style>
+    <link rel="stylesheet" href="static/css/styles.css">
     
 </head>
 <body>
     <h1>流浪動物資料列表</h1>
-
+    <script src="static/js/scripts.js" defer></script> 
     <form class="filter-form" action="" method="get">
         <label for="kind">選擇類型:</label>
         <select name="kind" id="kind">
@@ -86,6 +20,16 @@
         <button type="submit">篩選</button>
     </form>
 
+    <form class="filter-form" action="/draw" method="get">
+        <label for="draw_kind">交給命運(十連抽):</label>
+        <select name="draw_kind" id="draw_kind">
+            <option value="all">全部</option>
+            <option value="狗">狗</option>
+            <option value="貓">貓</option>
+        </select>
+        <button type="submit">十連抽</button>
+    </form>
+    
     <table>
         <tr>
             <th>ID</th>
@@ -109,13 +53,20 @@
             <td>{{ animal[8] }}</td>
             <td>{{ animal[9] }}</td>
             <td>{{ animal[10] }}</td>
-            <td><img src="{{ animal[22] }}" alt="animal photo"></td>
+            <td><img src="{{ animal[22] }}" alt="animal photo" class="myImg clickable"></td>
             <td>{{ animal[16] }}</td>
         </tr>
         {% endfor %}
     </table>
-
     <div class="pagination">
+        <!-- 添加跳轉到頁面的表單 -->
+        <form action="{{ url_for('home') }}" method="get">
+            <input type="hidden" name="kind" value="{{ kind }}">
+            <input type="number" name="page" placeholder="輸入頁碼" required min="1" max="{{ total_pages }}">
+            <button type="submit">跳轉</button>
+        </form>
+    
+        <!-- 現有的分頁按鈕 -->
         {% if current_page > 1 %}
             <a href="{{ url_for('home', kind=kind, page=1) }}">首頁</a>
             <a href="{{ url_for('home', kind=kind, page=current_page - 1) }}">上一頁</a>
@@ -140,8 +91,16 @@
             <span class="disabled">末頁</span>
         {% endif %}
     </div>
-    
 
+    
+          
+
+<!-- 圖片模態框 -->
+<div id="myModal" class="modal">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="img01">
+    <div id="caption"></div>
+</div>
 
 </body>
 </html>

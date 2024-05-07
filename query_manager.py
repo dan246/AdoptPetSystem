@@ -1,3 +1,5 @@
+import random
+
 class QueryManager:
     def __init__(self, db_manager):
         self.db_manager = db_manager
@@ -26,8 +28,15 @@ class QueryManager:
             cursor.execute(query)
         return cursor.fetchone()[0]
 
-    def get_display_pages(current_page, total_pages, window=2):
-        """Generate a range of page numbers around the current page."""
-        start = max(current_page - window, 1)
-        end = min(current_page + window, total_pages) + 1
-        return range(start, end)
+
+    def fetch_random_data(self, count=10, filter_criteria=None):
+        conn = self.db_manager.get_conn()
+        cursor = conn.cursor()
+        if filter_criteria and filter_criteria != 'all':
+            query = "SELECT * FROM animals WHERE animal_kind = ?"
+            cursor.execute(query, (filter_criteria,))
+        else:
+            query = "SELECT * FROM animals"
+            cursor.execute(query)
+        all_animals = cursor.fetchall()
+        return random.sample(all_animals, min(count, len(all_animals)))
