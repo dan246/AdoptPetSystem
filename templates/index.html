@@ -6,58 +6,72 @@
     <title>流浪動物資料</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 40px;
+            background-color: #f4f4f9;
+            color: #333;
         }
         table {
             width: 100%;
             border-collapse: collapse;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
         }
         th, td {
             text-align: left;
-            padding: 8px;
+            padding: 12px 15px;
             border-bottom: 1px solid #ddd;
         }
         th {
+            background-color: #007bff;
+            color: white;
+        }
+        tr:nth-child(even) {
             background-color: #f2f2f2;
         }
         tr:hover {
-            background-color: #f5f5f5;
+            background-color: #ddd;
         }
         img {
             width: 100px;
+            height: auto;
+            border-radius: 5px;
         }
         .filter-form {
             margin-bottom: 20px;
         }
         .pagination {
+            display: flex;
+            list-style: none;
+            justify-content: center;
             margin-top: 20px;
         }
-        .pagination a {
+        .pagination a, .pagination span {
             display: inline-block;
-            padding: 5px 10px;
-            margin-right: 5px;
-            border: 1px solid #ccc;
+            padding: 8px 16px;
+            margin-right: 8px;
+            border: 1px solid #007bff;
             text-decoration: none;
-            color: #333;
+            color: #007bff;
             background-color: #fff;
-            border-radius: 3px;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
         }
         .pagination a:hover {
-            background-color: #f0f0f0;
+            background-color: #007bff;
+            color: white;
         }
         .pagination .current {
             background-color: #007bff;
-            color: #fff;
+            color: white;
             border-color: #007bff;
         }
         .pagination .disabled {
-            color: #999;
+            color: #bbb;
             pointer-events: none;
             background-color: #f0f0f0;
-            border-color: #ccc;
         }
     </style>
+    
 </head>
 <body>
     <h1>流浪動物資料列表</h1>
@@ -103,24 +117,31 @@
 
     <div class="pagination">
         {% if current_page > 1 %}
+            <a href="{{ url_for('home', kind=kind, page=1) }}">首頁</a>
             <a href="{{ url_for('home', kind=kind, page=current_page - 1) }}">上一頁</a>
         {% else %}
+            <span class="disabled">首頁</span>
             <span class="disabled">上一頁</span>
         {% endif %}
-
-        {% for page_num in range(1, total_pages + 1) %}
+    
+        {% for page_num in display_pages %}
             {% if page_num == current_page %}
                 <span class="current">{{ page_num }}</span>
             {% else %}
                 <a href="{{ url_for('home', kind=kind, page=page_num) }}">{{ page_num }}</a>
             {% endif %}
         {% endfor %}
-
+    
         {% if current_page < total_pages %}
             <a href="{{ url_for('home', kind=kind, page=current_page + 1) }}">下一頁</a>
+            <a href="{{ url_for('home', kind=kind, page=total_pages) }}">末頁</a>
         {% else %}
             <span class="disabled">下一頁</span>
+            <span class="disabled">末頁</span>
         {% endif %}
     </div>
+    
+
+
 </body>
 </html>

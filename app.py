@@ -1,3 +1,4 @@
+
 from flask import Flask, request, render_template
 from database_manager import DatabaseManager
 from query_manager import QueryManager
@@ -28,24 +29,24 @@ def home():
     return render_template('index.html', animals=animals, current_page=current_page, total_pages=total_pages, total_animals=total_animals)
 
 def get_animals(kind, page):
-    # 使用 QueryManager 來獲取動物數據
-    if kind == 'all':
-        # 如果種類是全部，則獲取所有動物數據
-        animals = query_manager.fetch_all_data(page_number=page)
-        total_animals = len(query_manager.fetch_all_data())  # 使用len計算動物數量
-    else:
-        # 否則，根據指定的種類進行篩選
-        animals = query_manager.fetch_all_data(page_number=page, filter_criteria=kind)
-        total_animals = len(query_manager.fetch_all_data(filter_criteria=kind))  # 使用len計算動物數量
-    
-    # 假設每頁顯示 10 條數據
+    filter_criteria = None if kind == 'all' else kind
+    total_animals = query_manager.count_all_data(filter_criteria=filter_criteria)
+
     per_page = 10
-    
-    # 計算總頁數
-    total_pages = total_animals // per_page + (1 if total_animals % per_page > 0 else 0)
-    
-    # 返回動物列表、當前頁碼、總頁數和總動物數量
+    total_pages = (total_animals + per_page - 1) // per_page
+
+    # 確保頁碼不會低於1或高於總頁數
+    if page < 1:
+        page = 1
+    elif page > total_pages:
+        page = total_pages
+
+    animals = query_manager.fetch_all_data(page_number=page, per_page=per_page, filter_criteria=filter_criteria)
+
     return animals, page, total_pages, total_animals
+
+
+
 
 
 if __name__ == '__main__':
