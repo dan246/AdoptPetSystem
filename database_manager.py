@@ -9,6 +9,7 @@ class DatabaseManager:
     def get_conn(self):
         if 'conn' not in g:
             g.conn = sqlite3.connect(self.db_file)
+            g.conn.row_factory = sqlite3.Row  # 使查詢返回字典
         return g.conn
 
     def close_conn(self):
@@ -49,6 +50,42 @@ class DatabaseManager:
                 );
             ''')
             c.commit()
+            
+            c.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT NOT NULL,
+                    password TEXT NOT NULL,
+                    email TEXT NOT NULL
+                );
+            ''')
+            c.commit()
+            
+            c.execute('''
+                CREATE TABLE IF NOT EXISTS posts (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title TEXT NOT NULL,
+                    content TEXT NOT NULL,
+                    user_id INTEGER NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users (id)
+                );
+            ''')
+            c.commit()
+            
+            c.execute('''
+                CREATE TABLE IF NOT EXISTS comments (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    post_id INTEGER NOT NULL,
+                    content TEXT NOT NULL,
+                    user_id INTEGER NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (post_id) REFERENCES posts (id),
+                    FOREIGN KEY (user_id) REFERENCES users (id)
+                );
+            ''')
+            c.commit()
+            
         except Error as e:
             print(e)
 
@@ -85,3 +122,99 @@ class DatabaseManager:
                 c.close()
         except sqlite3.Error as e:
             print(f"Error inserting data into database: {e}")
+
+    def insert_user(self, username, password, email):
+        try:
+            conn = self.get_conn()
+            c = conn.cursor()
+            c.execute('''
+                INSERT INTO users (username, password, email) 
+                VALUES (?, ?, ?)
+            ''', (username, password, email))
+            conn.commit()
+        except sqlite3.Error as e:
+            print(f"Error inserting user into database: {e}")
+
+    def verify_user(self, username, password):
+        try:
+            conn = self.get_conn()
+            c = conn.cursor()
+            c.execute('''
+                SELECT * FROM users 
+                WHERE username = ? AND password = ?
+            ''', (username, password))
+            return c.fetchone()
+        except sqlite3.Error as e:
+            print(f"Error verifying user: {e}")
+            return None
+
+    def insert_post(self, title, content, user_id):
+        try:
+            conn = self.get_conn()
+            c = conn.cursor()
+            c.execute('''
+                INSERT INTO posts (title, content, user_id) 
+                VALUES (?, ?, ?)
+            ''', (title, content, user_id))
+            conn.commit()
+        except sqlite3.Error as e:
+            print(f"Error inserting post into database: {e}")
+
+    def fetch_all_posts(self):
+        try:
+            conn = self.get_conn()
+            c = conn.cursor()
+            c.execute('''
+                SELECT posts.*, users.username 
+                FROM posts 
+                JOIN users ON posts.user_id = users.id 
+                ORDER BY created_at DESC
+            ''')
+            return c.fetchall()
+        except sqlite3.Error as e:
+            print(f"Error fetching posts: {e}")
+            return []
+
+    def fetch_post_by_id(self, post_id):
+        try:
+            conn = self.get_conn()
+            c = conn.cursor()
+            c.execute('''
+                SELECT posts.*, users.username 
+                FROM posts 
+                JOIN users ON posts.user_id = users.id 
+                WHERE posts.id = ?
+            ''', (post_id,))
+            return c.fetchone()
+        except sqlite3.Error as e:
+            print(f"Error fetching post by id: {e}")
+            return None
+
+    def insert_comment(self, post_id, content, user_id):
+        try:
+            conn = self.get_conn()
+            c = conn.cursor()
+            c.execute('''
+                INSERT INTO comments (post_id, content, user_id) 
+                VALUES (?, ?, ?)
+            ''', (post_id, content, user_id))
+            conn.commit()
+        except sqlite3.Error as e:
+            print(f"Error inserting comment into database: {e}")
+
+    def fetch_comments_by_post_id(self, post_id):
+        try:
+            conn = self.get_conn()
+            c = conn.cursor()
+            c.execute('''
+                SELECT comments.*, users.username 
+                FROM comments 
+                JOIN users ON comments.user_id = users.id 
+                WHERE post_id = ? 
+                ORDER BY created_at ASC
+            ''', (post_id,))
+            return c.fetchall()
+        except sqlite3.Error as e:
+            print(f"Error fetching comments by post id: {e}")
+            return []
+
