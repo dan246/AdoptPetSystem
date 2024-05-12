@@ -28,10 +28,10 @@ scheduler.start()
 
 @app.route('/', methods=['GET'])
 def home():
-    kind = request.args.get('kind', 'all')  # 從 URL 參數中獲取種類
-    page = request.args.get('page', 1, type=int)  # 從 URL 參數中獲取頁碼，預設值為 1
-    animals, current_page, total_pages, total_animals = get_animals(kind, page)  # 根據種類和頁碼篩選動物數據
-    display_pages = get_display_pages(current_page, total_pages)  # 獲取顯示的頁碼範圍
+    kind = request.args.get('kind', 'all')  
+    page = request.args.get('page', 1, type=int)  
+    animals, current_page, total_pages, total_animals = get_animals(kind, page)  
+    display_pages = get_display_pages(current_page, total_pages)  
     return render_template('index.html', animals=animals, current_page=current_page, total_pages=total_pages, display_pages=display_pages, kind=kind, total_animals=total_animals)
 
 def get_animals(kind, page):
