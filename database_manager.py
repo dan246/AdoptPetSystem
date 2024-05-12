@@ -1,3 +1,4 @@
+import re
 import sqlite3
 from flask import g
 from sqlite3 import Error
@@ -54,7 +55,7 @@ class DatabaseManager:
             c.execute('''
                 CREATE TABLE IF NOT EXISTS users (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    username TEXT NOT NULL,
+                    username TEXT NOT NULL UNIQUE,
                     password TEXT NOT NULL,
                     email TEXT NOT NULL
                 );
@@ -127,13 +128,26 @@ class DatabaseManager:
         try:
             conn = self.get_conn()
             c = conn.cursor()
+            
+            # 檢查用戶名是否已存在
+            c.execute('SELECT * FROM users WHERE username = ?', (username,))
+            if c.fetchone():
+                return "Error: Username already exists."
+            
+            # 檢查密碼是否符合要求
+            if not re.match(r'^(?=.*[a-z])(?=.*[A-Z]).{6,}$', password):
+                return "Error: Password must be at least 6 characters long and contain both uppercase and lowercase letters."
+            
             c.execute('''
                 INSERT INTO users (username, password, email) 
                 VALUES (?, ?, ?)
             ''', (username, password, email))
             conn.commit()
+            return None  # 表示成功
         except sqlite3.Error as e:
             print(f"Error inserting user into database: {e}")
+            return f"Error: {str(e)}"
+
 
     def verify_user(self, username, password):
         try:
@@ -217,4 +231,3 @@ class DatabaseManager:
         except sqlite3.Error as e:
             print(f"Error fetching comments by post id: {e}")
             return []
-

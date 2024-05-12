@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for, session
+from flask import Flask, request, render_template, redirect, url_for, session, flash
 from database_manager import DatabaseManager
 from query_manager import QueryManager
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -77,8 +77,12 @@ def register():
         email = request.form['email']
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
-        db_manager.insert_user(username, hashed_password, email)
-        return redirect(url_for('login'))
+        error = db_manager.insert_user(username, hashed_password, email)
+        if error:
+            flash(error)
+            return redirect(url_for('register'))
+        else:
+            return redirect(url_for('login'))
     return render_template('register.html')
 
 # 使用者登入
