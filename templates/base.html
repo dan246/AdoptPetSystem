@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}流浪動物資料{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('home') }}">首頁</a></li>
+            <li><a href="{{ url_for('forum') }}">討論區</a></li>
+            {% if 'user_id' in session %}
+                <li><a href="{{ url_for('logout') }}">登出</a></li>
+            {% else %}
+                <li><a href="{{ url_for('login') }}">登入</a></li>
+                <li><a href="{{ url_for('register') }}">註冊</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% block content %}{% endblock %}
+    <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
+</body>
+</html>
